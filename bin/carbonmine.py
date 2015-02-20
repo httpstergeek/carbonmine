@@ -115,7 +115,7 @@ def tojson(jmessage):
 
 
 @Configuration()
-class carbonMine(GeneratingCommand):
+class carbonMineCommand(GeneratingCommand):
     """ %(synopsis)
 
     ##Syntax
@@ -166,7 +166,7 @@ class carbonMine(GeneratingCommand):
             global_conf = getstanza('carbonmine', 'global')
             proxies = setproxy(conf, global_conf)
             auth = (conf['user'], conf['password']) if (conf['user'] and conf['password']) else None
-            url = conf['url']
+            server = conf['server']
             earliest = 'from=%s' % self.earliest if self.earliest else ''
             latest = 'until=%s' % self.latest if self.latest else ''
             target = 'target=%s' % self.target
@@ -174,10 +174,10 @@ class carbonMine(GeneratingCommand):
 
             # building url string
             query = '&'.join((earliest, latest, target, 'format=json'))
-            url = '%s%s%s' % (url, '/render?', query)
+            server = '%s%s%s' % (server, '/render?', query)
 
             # retrieving data from Graphite API
-            graphite_request = requests.get(url, auth=auth, headers={'Accept': 'application/json'},
+            graphite_request = requests.get(server, auth=auth, headers={'Accept': 'application/json'},
                                             timeout=timeout, proxyies=proxies)
             graphite_data = graphite_request.json()
         except Exception as e:
@@ -216,4 +216,4 @@ class carbonMine(GeneratingCommand):
             record['_raw'] = tojson(record)
             yield record
 
-dispatch(carbonMine, sys.argv, sys.stdin, sys.stdout, __name__)
+dispatch(carbonMineCommand, sys.argv, sys.stdin, sys.stdout, __name__)
