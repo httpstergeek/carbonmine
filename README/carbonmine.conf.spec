@@ -32,8 +32,8 @@ proxy_password = <string>
 
 
 [production]
-url = fqdn
-* sets url for Graphite instance.
+server = fqdn
+* sets server for Graphite instance.
 * EXAMPLE: graphite.mycompany.com
 
 user = graphite User
