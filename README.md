@@ -27,13 +27,15 @@ Requirements
 
 Prerequisites
 ---------
+* Graphite 9.x or Higher
 
-Splunk version 6.x or Higher
+* Splunk version 6.x or Higher
 
 You can download it [Splunk][splunk-download].  And see the [Splunk documentation][] for instructions on installing and more.
 [Splunk]:http://www.splunk.com
 [Splunk documentation]:http://docs.splunk.com/Documentation/Splunk/latest/User
 [splunk-download]:http://www.splunk.com/download
+
 
 Installation instructions
 ---------
@@ -44,6 +46,14 @@ Installation instructions
 
 3) configure [production] stanza with url to graphite instance. Note: if proxy look at README for proxy config.
 
+Example Command
+---------
+
+`| carbonmine earliest=-1hour latest=now target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total)
+    OR
+`| carbonmine target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total)
+    OR
+`| carbonmine target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total) instance=dev
 
 Recommendations
 ---------
