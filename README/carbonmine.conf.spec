@@ -32,9 +32,9 @@ proxy_password = <string>
 
 
 [production]
-server = fqdn
+url = http(s)://fqdn
 * sets server for Graphite instance.
-* EXAMPLE: graphite.mycompany.com
+* EXAMPLE: http://graphite.mycompany.com
 
 user = graphite User
 * sets user for Graphite instance, optional.  Only required if you have enabled authentication for graphite.
