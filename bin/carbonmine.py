@@ -14,7 +14,8 @@ platform = system().lower()
 # Loading eggs into python execution path
 if platform == 'darwin':
     platform = 'macosx'
-egg_dir = os.path.dirname(os.path.realpath(__file__))
+running_dir = os.path.dirname(os.path.realpath(__file__))
+egg_dir = os.path.join(running_dir, 'eggs')
 for filename in os.listdir(egg_dir):
     file_segments = filename.split('-')
     if filename.endswith('.egg'):
@@ -162,7 +163,8 @@ class carbonMine(GeneratingCommand):
             # get config and command arguments
             instance = self.instance if self.instance else 'production'
             conf = getstanza('carbonmine', instance)
-            proxies = setproxy(conf)
+            global_conf = getstanza('carbonmine', 'global')
+            proxies = setproxy(conf, global_conf)
             auth = (conf['user'], conf['password']) if (conf['user'] and conf['password']) else None
             url = conf['url']
             earliest = 'from=%s' % self.earliest if self.earliest else ''
