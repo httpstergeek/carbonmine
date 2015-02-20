@@ -1,4 +1,4 @@
-__author__ = 'berniem'
+__author__ = 'bmacias'
 import os
 import logging
 import logging.handlers
