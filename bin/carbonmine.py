@@ -35,10 +35,10 @@ def setup_logger(level):
     :param level: Logging level
     :return: logger object
     """
-    logger = logging.getLogger('gquarry')
+    logger = logging.getLogger('carbonmine')
     logger.propagate = False  # Prevent the log messages from being duplicated in the python.log file
     logger.setLevel(level)
-    file_handler = logging.handlers.RotatingFileHandler(os.path.join('snow.log'), maxBytes=5000000,
+    file_handler = logging.handlers.RotatingFileHandler(os.path.join('carbonmine.log'), maxBytes=5000000,
                                                         backupCount=5)
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     file_handler.setFormatter(formatter)
@@ -71,7 +71,7 @@ def getstanza(conf, stanza):
     return apikeyconf[stanza]
 
 
-def setproxy(local_conf, global_conf=dict()):
+def setproxy(local_conf, global_conf):
     """
     Sets up dict object for proxy settings
     :param local_conf:
@@ -163,25 +163,29 @@ class carbonMineCommand(GeneratingCommand):
             # get config and command arguments
             instance = self.instance if self.instance else 'production'
             conf = getstanza('carbonmine', instance)
-            global_conf = getstanza('carbonmine', 'global')
-            proxies = setproxy(conf, global_conf)
-            auth = (conf['user'], conf['password']) if (conf['user'] and conf['password']) else None
+            proxy_conf = getstanza('carbonmine', 'global')
+            proxies = setproxy(conf, proxy_conf)
+            auth = (conf['user'], conf['password']) if ('user' in conf and 'password' in conf)else None
             server = conf['server']
-            earliest = 'from=%s' % self.earliest if self.earliest else ''
-            latest = 'until=%s' % self.latest if self.latest else ''
-            target = 'target=%s' % self.target
+            query = list()
+            if self.earliest:
+                query.append('from=%s' % self.earliest)
+            if self.latest:
+                query.append('until=%s' % self.latest)
+            if self.target:
+                query.append('target=%s' % self.target)
+            query.append('format=json')
             timeout = int(conf['timeout']) if 'timeout'in conf else 60
-
             # building url string
-            query = '&'.join((earliest, latest, target, 'format=json'))
+            query = '&'.join(query)
             server = '%s%s%s' % (server, '/render?', query)
 
             # retrieving data from Graphite API
             graphite_request = requests.get(server, auth=auth, headers={'Accept': 'application/json'},
-                                            timeout=timeout, proxyies=proxies)
+                                            timeout=timeout, proxies=proxies)
             graphite_data = graphite_request.json()
         except Exception as e:
-            logger.debug('snowPackCommand: %s' % e)
+            logger.debug('carbonMineCommand: %s' % e)
             yield {'error': e}
             exit()
 
@@ -202,7 +206,7 @@ class carbonMineCommand(GeneratingCommand):
                     record = dict()
                     record['_time'] = epoch
                     record['sourcetype'] = 'graphite'
-                    record['source'] = target
+                    record['source'] = self.target
                     record['value'] = value
                     record['target'] = graphite_target
                     record['function'] = graphite_function
@@ -214,6 +218,7 @@ class carbonMineCommand(GeneratingCommand):
             record['status'] = graphite_request.status_code
             record['error'] = graphite_data
             record['_raw'] = tojson(record)
+            logger.debug('carbonMineCommand: Recieved status code=%s' % record['status'], record['error'])
             yield record
 
 dispatch(carbonMineCommand, sys.argv, sys.stdin, sys.stdout, __name__)
