@@ -166,7 +166,7 @@ class carbonMineCommand(GeneratingCommand):
             proxy_conf = getstanza('carbonmine', 'global')
             proxies = setproxy(conf, proxy_conf)
             auth = (conf['user'], conf['password']) if ('user' in conf and 'password' in conf)else None
-            server = conf['server']
+            url = conf['url']
             query = list()
             if self.earliest:
                 query.append('from=%s' % self.earliest)
@@ -178,10 +178,10 @@ class carbonMineCommand(GeneratingCommand):
             timeout = int(conf['timeout']) if 'timeout'in conf else 60
             # building url string
             query = '&'.join(query)
-            server = '%s%s%s' % (server, '/render?', query)
+            url = '%s%s%s' % (url, '/render?', query)
 
             # retrieving data from Graphite API
-            graphite_request = requests.get(server, auth=auth, headers={'Accept': 'application/json'},
+            graphite_request = requests.get(url, auth=auth, headers={'Accept': 'application/json'},
                                             timeout=timeout, proxies=proxies)
             graphite_data = graphite_request.json()
         except Exception as e:
