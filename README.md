@@ -1,5 +1,3 @@
-Copyright (C) 2006-2015 Zillow Group, Inc. All Rights Reserved.
-
 Carbon Mine - A Splunk Search Command for Graphite
 =================
 
@@ -10,8 +8,6 @@ This Splunk utilizes requests python modules.
 * Supports multiple graphite Instances
 
 * Proxy support
-
-
 
 
 Requirements
