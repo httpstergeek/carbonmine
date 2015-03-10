@@ -4,15 +4,17 @@ import logging
 import logging.handlers
 import sys
 import json
+from platform import system
 from splunk.clilib import cli_common as cli
 from splunklib.searchcommands import \
     dispatch, GeneratingCommand, Configuration, Option
 
-
-
-# Loading eggs into python execution path
+# discovering platform
+platform = system().lower()
 if platform == 'darwin':
     platform = 'macosx'
+
+# Loading eggs into python execution path
 running_dir = os.path.dirname(os.path.realpath(__file__))
 egg_dir = os.path.join(running_dir, 'eggs')
 for filename in os.listdir(egg_dir):
@@ -217,7 +219,7 @@ class carbonMineCommand(GeneratingCommand):
             record['status'] = graphite_request.status_code
             record['error'] = graphite_data
             record['_raw'] = tojson(record)
-            logger.debug('carbonMineCommand: Recieved status code=%s' % record['status'], record['error'])
+            logger.debug('carbonMineCommand: Received status code=%s' % record['status'], record['error'])
             yield record
 
 dispatch(carbonMineCommand, sys.argv, sys.stdin, sys.stdout, __name__)
