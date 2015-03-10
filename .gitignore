@@ -1,0 +1,6 @@
+*.idea
+/local
+*.iml
+*.DS_STORE
+*.pyc
+*.log
