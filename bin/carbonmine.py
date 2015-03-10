@@ -4,12 +4,11 @@ import logging
 import logging.handlers
 import sys
 import json
-from platform import system
 from splunk.clilib import cli_common as cli
 from splunklib.searchcommands import \
     dispatch, GeneratingCommand, Configuration, Option
 
-platform = system().lower()
+
 
 # Loading eggs into python execution path
 if platform == 'darwin':
