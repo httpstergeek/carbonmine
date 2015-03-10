@@ -29,7 +29,7 @@ Prerequisites
 
 * Splunk version 6.x or Higher
 
-You can download it [Splunk][splunk-download].  And see the [Splunk documentation][] for instructions on installing and more.
+You can download it [Splunk][splunk-download].  And see the [Splunk documentation] for instructions on installing and more.
 [Splunk]:http://www.splunk.com
 [Splunk documentation]:http://docs.splunk.com/Documentation/Splunk/latest/User
 [splunk-download]:http://www.splunk.com/download
@@ -47,11 +47,12 @@ Installation instructions
 Example Command
 ---------
 
-`| carbonmine earliest=-1hour latest=now target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total)
+| carbonmine earliest=-1hour latest=now target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total)
     OR
-`| carbonmine target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total)
+| carbonmine target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total)
     OR
-`| carbonmine target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total) instance=dev
+| carbonmine target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total) instance=dev
+
 
 Recommendations
 ---------
