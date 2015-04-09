@@ -3,4 +3,6 @@
 *.iml
 *.DS_STORE
 *.pyc
+*.pyo
 *.log
+test.py
