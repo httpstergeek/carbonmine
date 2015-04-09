@@ -24,6 +24,7 @@ __status__ = 'Production'
 import os
 from splunk.clilib import cli_common as cli
 import json
+import base64
 import urllib
 import urllib2
 import logging
@@ -116,7 +117,17 @@ def tojson(jmessage):
     return jmessage
 
 
-def request(url, data=None, headers=None, proxy=None, timeout=None):
+def request(url, username=None, password=None, headers=None, data=None, proxy=None, timeout=None):
+    """
+    :param url: string, http(s)://
+    :param username:
+    :param password:
+    :param headers:
+    :param data:
+    :param proxy: dict object ProxyHandler
+    :param timeout:
+    :return:
+    """
     if proxy:
         if ('http' in proxy) or ('https' in proxy):
             proxy_handler = urllib2.ProxyHandler(proxy)
@@ -128,8 +139,12 @@ def request(url, data=None, headers=None, proxy=None, timeout=None):
 
     url_encode = urllib.urlencode(data) if data else None
     connection = urllib2.Request(url, data=url_encode, headers=headers)
+    if username and password:
+        encoded = base64.encode('{0}:{1}'.format(username, password))
+        connection.add_header("Authorization", "Basic %s" % encoded)
+
     try:
-        response = urllib2.urlopen(connection)
+        response = urllib2.urlopen(connection, timeout=timeout)
         response = dict(code=response.getcode(), msg=response.read(), headers=response.info())
     except urllib2.HTTPError, e:
         response = dict(code=e.code, msg=e.reason)
