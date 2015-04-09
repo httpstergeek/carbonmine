@@ -2,12 +2,13 @@ Carbon Mine - A Splunk Search Command for Graphite
 =================
 
 Carbon Mine is a Splunk Search command that uses Graphites render url api and retrieves raw json data.
-This Splunk utilizes requests python modules.
 
 ##Supports:
 * Supports multiple graphite Instances
 
 * Proxy support
+
+* Supports multiple targets
 
 
 Requirements
@@ -48,10 +49,13 @@ Example Command
 ---------
 
 | carbonmine earliest=-1hour latest=now target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total)
-    OR
+OR
 | carbonmine target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total)
-    OR
+OR
 | carbonmine target=nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total) instance=dev
+OR
+| carbonmine target="nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total),nonNegativeDerivative(*.elasticsearch.indices._all.search.query_total.pct99)" instance=dev
+
 
 
 Recommendations
