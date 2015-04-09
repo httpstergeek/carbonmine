@@ -28,7 +28,6 @@ import sys
 import util
 import re
 import json
-import time
 from logging import INFO
 from splunklib.searchcommands import \
     dispatch, GeneratingCommand, Configuration, Option
