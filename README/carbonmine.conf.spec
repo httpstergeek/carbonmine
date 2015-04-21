@@ -31,7 +31,7 @@ proxy_password = <string>
 #*******
 
 
-[production]
+[<instance>]
 url = http(s)://fqdn
 * sets server for Graphite instance.
 * EXAMPLE: http://graphite.mycompany.com
