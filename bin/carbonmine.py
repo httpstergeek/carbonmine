@@ -16,6 +16,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+import util
+import re
+import json
+from logging import INFO
+from splunklib.searchcommands import \
+    dispatch, GeneratingCommand, Configuration, Option, validators
+
 __author__ = 'Bernardo Macias '
 __credits__ = ['Bernardo Macias']
 __license__ = "ASF"
@@ -23,14 +31,6 @@ __version__ = "2.0"
 __maintainer__ = "Bernardo Macias"
 __email__ = 'bmacias@httpstergeek.com'
 __status__ = 'Production'
-
-import sys
-import util
-import re
-import json
-from logging import INFO
-from splunklib.searchcommands import \
-    dispatch, GeneratingCommand, Configuration, Option
 
 logger = util.setup_logger(INFO)
 
@@ -78,26 +78,6 @@ def get_target_data(url, username=None, password=None, data=None, proxy=None, ti
 
 @Configuration()
 class carbonMineCommand(GeneratingCommand):
-    """ %(synopsis)
-
-    ##Syntax
-
-    .. code-block::
-    carbonmine earliest="<time>" latest="<time>" target="<string>" instance=<string>
-
-    ##Description
-
-    Return json events for every data point return for each target returned.
-
-    ##Example
-
-    Return a graphite API Json objects for a target.
-
-    .. code-block::
-        | carbonmine earliest="-1hour" latest="now" target="nonNegativeDerivative(*.elastic.*._all.search.query_total)"
-
-    """
-
     earliest = Option(
         doc='''**Syntax:** **virtualServers=***<string>*
          **Description:** starting time for query. ''',
@@ -111,7 +91,7 @@ class carbonMineCommand(GeneratingCommand):
     target = Option(
         doc='''**Syntax:** **partition=***<string>*
          **Description:** Graphite object/path. ''',
-        require=True)
+        require=True, validate=validators.List())
 
     instance = Option(
         doc='''**Syntax:** **device=***<string>*
@@ -119,34 +99,17 @@ class carbonMineCommand(GeneratingCommand):
         require=False)
 
     def generate(self):
-
-        try:
-            # get config and command arguments
-            instance = self.instance if self.instance else 'production'
-            conf = util.getstanza('carbonmine', instance)
-            proxy_conf = util.getstanza('carbonmine', 'global')
-            proxies = util.setproxy(conf, proxy_conf)
-            auth = dict(username=conf['user'],
-                        password=conf['password']) if ('user' in conf and 'password' in conf) else dict(username=None,
-                                                                                                        password=None)
-            timeout = int(conf['timeout']) if 'timeout'in conf else 60
-
-            if self.target:
-                targets = self.target.split(',')
-        except Exception as e:
-            logger.debug('carbonMineCommand: %s' % e)
-            yield {'error': e}
-            exit()
-
+        # get config and command arguments
+        instance = self.instance if self.instance else 'production'
+        conf = util.getstanza('carbonmine', instance)
+        timeout = int(conf['timeout']) if 'timeout'in conf else 60
         earliest = 'from={0}'.format(self.earliest) if self.earliest else None
         latest = 'until={0}'.format(self.latest) if self.latest else None
         url = '{0}/render?{1}&{2}'.format(conf['url'], earliest, latest)
 
-        for target in targets:
-            url = '{0}&target={1}&format=json'.format(url, target.strip())
-            #yield {'url': url, '_raw': util.tojson({'url': url})}
-            #exit()
-            for record in get_target_data(url, timeout=timeout):
+        for target in self.target:
+            rurl = '{0}&target={1}&format=json'.format(url, target.strip())
+            for record in get_target_data(rurl, timeout=timeout):
                 yield record
 
 dispatch(carbonMineCommand, sys.argv, sys.stdin, sys.stdout, __name__)
